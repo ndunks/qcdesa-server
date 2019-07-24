@@ -14,6 +14,12 @@ declare interface Config {
      * If true, verbose message will displayed
      */
     debug: boolean
+
+    /**
+     * Default passcode
+     */
+    passcode: string
+
     /**
      * Data directory
      * 
@@ -37,14 +43,18 @@ declare interface Config {
      * Accessible public_path via Web Browser on client, 
      * depend on how you configured the HTTP Server
      * 
-     * default is `/data`
+     * default is `/public`
      */
     public_url: string
+
+    /**
+     * Prefixed API Url
+     */
+    api_url: string
 }
 
 declare namespace NodeJS {
     interface Global {
-        echo(...args): void,
-        server: any
+        echo(...args): void
     }
 }

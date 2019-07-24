@@ -1,10 +1,11 @@
 import * as express from "express";
 import * as fs from "fs";
 import config from "@/config/config";
+import AdminHandler from "@/handlers/admin";
+import IndexHandler from "@/handlers/default";
 
 declare global {
     function echo(...args): void
-    const server: express.Application
 }
 
 if( ! fs.existsSync(config.data) ){
@@ -39,9 +40,8 @@ process.argv.reduce( ( param , current, index, array) => {
 global.echo = (...args) => {
     config.debug && console.log(...args)
 }
-
-/** Init server and exposed in global context */
-global.server = express();
+const server = express();
+const router = express.Router();
 
 console.debug("Mode %s, Loaded config %s", process.env.NODE_ENV, config);
 
@@ -49,9 +49,37 @@ console.debug("Mode %s, Loaded config %s", process.env.NODE_ENV, config);
 server.use(express.json())
 
 /** Serve Static files */
-server.use(config.public_url, express.static(config.public_path))
+server.use([config.public_url, '/public'], express.static(config.public_path))
 
 /** Load all handlers */
-require("@/handlers");
+router.use('/', IndexHandler);
+router.use('/admin', AdminHandler);
+
+/** Error handler */
+
+// Catch all error handler
+router.use((err: Error | string, req, res, next) => {
+    //@ts-ignore
+    echo('API ERROR', err.message);
+
+    (res.headersSent ? res : res.status(err['status'] || 500))
+        .send({
+            error: err['message'] || err
+        })
+})
+
+// Page not found handler
+router.use((req, res, next) => {
+    echo('API NOTFOUND', req.url);
+    (res.headersSent ? res : res.status(404))
+        .send({
+            error: 'Nothing here'
+        })
+})
+
+
+
+server.use(config.api_url, router);
+
 
 server.listen(config.port, config.host,  () => echo('Api Listening on', `http://${config.host}:${config.port}/`) )
