@@ -4,6 +4,11 @@ node_modules
 
 # Ignore local configration
 src/config/*.local.*
+# Ignore generated data
+/data
+
+# Ignore dev build
+/build
 
 # local env files
 .env.local
