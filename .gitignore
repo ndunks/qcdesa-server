@@ -2,6 +2,9 @@
 node_modules
 /dist
 
+# Ignore local configration
+src/config/*.local.*
+
 # local env files
 .env.local
 .env.*.local
