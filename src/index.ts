@@ -1,8 +1,9 @@
 import * as express from "express";
 import * as fs from "fs";
 import config from "@/config/config";
-import AdminHandler from "@/handlers/admin";
 import IndexHandler from "@/handlers/default";
+import VoterHandler from "@/handlers/voter";
+import AdminHandler from "@/handlers/admin";
 
 declare global {
     function echo(...args): void
@@ -54,6 +55,7 @@ server.use([config.public_url, '/public'], express.static(config.public_path))
 /** Load all handlers */
 router.use('/', IndexHandler);
 router.use('/admin', AdminHandler);
+router.use('/voter', VoterHandler);
 
 /** Error handler */
 
