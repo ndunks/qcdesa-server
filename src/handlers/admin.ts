@@ -107,4 +107,4 @@ router.put('/upload/:name', (req, res, next) => {
     }
 })
 
-export default router;
+module.exports = router;

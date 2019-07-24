@@ -1,9 +1,6 @@
 import * as express from "express";
 import * as fs from "fs";
 import config from "@/config/config";
-import IndexHandler from "@/handlers/default";
-import VoterHandler from "@/handlers/voter";
-import AdminHandler from "@/handlers/admin";
 
 declare global {
     function echo(...args): void
@@ -43,6 +40,7 @@ global.echo = (...args) => {
 }
 const server = express();
 const router = express.Router();
+const expresw= require("express-ws")(server);
 
 console.debug("Mode %s, Loaded config %s", process.env.NODE_ENV, config);
 
@@ -53,9 +51,9 @@ server.use(express.json())
 server.use([config.public_url, '/public'], express.static(config.public_path))
 
 /** Load all handlers */
-router.use('/', IndexHandler);
-router.use('/admin', AdminHandler);
-router.use('/voter', VoterHandler);
+router.use('/', require('@/handlers/default') );
+router.use('/admin', require('@/handlers/admin') );
+router.use('/voter', require('@/handlers/voter') );
 
 /** Error handler */
 
