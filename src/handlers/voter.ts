@@ -59,10 +59,16 @@ class handleVoterWS {
             str = JSON.stringify(this.data);
             this.save()
         }
-        // send initial data
-        ws.send(str);
-        ws.on('message', this.onMessage)
-        this.log('Connected', req.socket.remoteAddress, req.headers["user-agent"]);
+        if( this.data.finished ){
+            ws.send(str, () => ws.close());
+            ws.close();
+            return;
+        }else{
+            ws.send(str)
+            // send initial data
+            ws.on('message', this.onMessage)
+            this.log('Connected', req.socket.remoteAddress, req.headers["user-agent"]);
+        }
     }
     log(...args) {
         const data = [Date.now(), ...args];
@@ -88,8 +94,20 @@ class handleVoterWS {
         }
     }
     onMessage = (data: WS.Data) => {
-        echo("Got message", typeof (data), data)
+        
         if(typeof(data) == 'string'){
+            switch(data){
+                case 'SELESAI': {
+                    this.data.finished = Date.now();
+                    this.save();
+                    this.ws.close();
+                    break;
+                }
+                default: {
+                    echo("Unhandled message", data)
+                    break;
+                }
+            }
         }else{
             // is object, mean vote it!
             const raw = new Int8Array(data as Buffer);
