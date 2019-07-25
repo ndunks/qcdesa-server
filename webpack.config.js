@@ -44,18 +44,6 @@ const configBase = {
     externals: nodeExternal()
 };
 
-// Config replace if local exists
-if (fs.existsSync('src/config/config.local.ts')) {
-
-    /**
-     * NOTE: Please always use @/config when importing config in ts file.
-     * Avoid using relative path
-     */
-    configBase.resolve.alias = {
-        ...{ '@/config/config': '@/config/config.local' },
-        ...configBase.resolve.alias
-    }
-}
 /**
  * @type {Webpack.Configuration}
  */
@@ -70,6 +58,19 @@ const configDevelopment = {
 module.exports = (env, argv) => {
     console.log('WEBPACK MODE', argv.mode);
     if (argv.mode === 'development') {
+
+        // Config replace if local exists
+        if (fs.existsSync('src/config/config.local.ts')) {
+
+            /**
+             * NOTE: Please always use @/config when importing config in ts file.
+             * Avoid using relative path
+             */
+            configBase.resolve.alias = {
+                ...{ '@/config/config': '@/config/config.local' },
+                ...configBase.resolve.alias
+            }
+        }
         return { ...configBase, ...configDevelopment }
     } else {
         return configBase;

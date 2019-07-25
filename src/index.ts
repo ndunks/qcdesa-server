@@ -9,7 +9,7 @@ declare global {
     function echo(...args): void
 }
 // File is shared, make it public accessible
-process.umask(0o011);
+process.umask(0o000);
 
 if (!fs.existsSync(config.data)) {
     fs.mkdirSync(config.data, { recursive: true });
