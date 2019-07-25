@@ -152,18 +152,6 @@ class handleVoterWS {
         delete this.voteId;
     }
 }
-router.post('/check', (req, res) => {
-    let index = req.body.id || -1;
-    const dataJson = JSON.parse(fs.readFileSync(dataFile, 'utf8'));
-    echo("VOTER CHECK", index)
-    if (dataJson[index] && req.body && req.body.passcode) {
-        res.send({
-            valid: req.body.passcode == dataJson[index].passcode
-        })
-    } else {
-        throw { status: 404, message: 'Not valid' };
-    }
-});
 
 function acceptWSConnection(ws: WS, voteId: number, voteInfo, req: Request) {
     const voteFile = `${config.public_path}/${voteId}.json`;
@@ -252,5 +240,17 @@ function serverUpgrade(request: Request, socket, head) {
         socket.destroy();
     }
 }
+router.post('/check', (req, res) => {
+    let index = parseInt(req.body.id);
+    const dataJson = JSON.parse(fs.readFileSync(dataFile, 'utf8'));
+
+    if (dataJson[index] && req.body && req.body.passcode) {
+        res.send({
+            valid: req.body.passcode == dataJson[index].passcode
+        })
+    } else {
+        throw { status: 404, message: 'Not valid' };
+    }
+});
 
 export { router as VoterHandler, serverUpgrade as VoterServerUpgradeHandler };
