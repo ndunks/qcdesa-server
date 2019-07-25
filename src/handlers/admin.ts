@@ -4,6 +4,7 @@ import { Router, Request } from "express";
 import { extname, resolve } from "path";
 const passcodeFile = `${config.data}/passcode`;
 const dataFile = `${config.data}/data.json`;
+const publicFile = `${config.public_path}/data.json`;
 const router = Router();
 
 function checkPasscode(req: Request) {
@@ -21,6 +22,14 @@ function checkPasscode(req: Request) {
         // Default is passcode
         return value == config.passcode;
     }
+}
+// Store file in 2 locations
+function updateData(data: any[]){
+    
+    writeFileSync(dataFile, JSON.stringify(data, null, 2));
+    // Remove passcode
+    data.forEach( v => delete v.passcode );
+    writeFileSync(publicFile, JSON.stringify(data, null, 2));
 }
 
 router.get('/quickcount', (req, res, next) => {
@@ -47,7 +56,7 @@ router.put('/quickcount', (req, res, next) => {
         dataJson = JSON.parse(readFileSync(dataFile, 'utf8'));
     }
     dataJson.push(req.body);
-    writeFileSync(dataFile, JSON.stringify(dataJson, null, 2));
+    updateData(dataJson);
     res.send({ ok: true });
 })
 
@@ -67,7 +76,7 @@ router.patch('/quickcount/:index', (req, res, next) => {
         return next({ status: 404, message: 'Tidak ditemukan' })
     }
     dataJson[index] = {...dataJson[index], ...req.body};
-    writeFileSync(dataFile, JSON.stringify(dataJson, null, 2));
+    updateData(dataJson);
     res.send({ ok: true });
 })
 

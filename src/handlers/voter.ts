@@ -48,22 +48,28 @@ class handleVoterWS {
                     count: 0
                 }
             })
+            // not required, merged to results
+            delete voteInfo.candidates
+            delete voteInfo.passcode
             //this just started
             this.data = {
-                started: Date.now(),
-                accepted: 0,
-                declined: 0,
-                total: 0,
-                results: results
-            }
+                ...voteInfo,
+                ...{
+                    started: Date.now(),
+                    accepted: 0,
+                    declined: 0,
+                    total: 0,
+                    results: results
+                }
+            };
             str = JSON.stringify(this.data);
             this.save()
         }
-        if( this.data.finished ){
+        if (this.data.finished) {
             ws.send(str, () => ws.close());
             ws.close();
             return;
-        }else{
+        } else {
             ws.send(str)
             // send initial data
             ws.on('message', this.onMessage)
@@ -81,10 +87,7 @@ class handleVoterWS {
     }
     save() {
         try {
-
             this.data.updated = Date.now();
-            console.log('Write', this.file, this.data);
-
             fs.writeSync(this.file, JSON.stringify(this.data), 0, 'utf8')
             return true;
         } catch (error) {
@@ -94,9 +97,9 @@ class handleVoterWS {
         }
     }
     onMessage = (data: WS.Data) => {
-        
-        if(typeof(data) == 'string'){
-            switch(data){
+
+        if (typeof (data) == 'string') {
+            switch (data) {
                 case 'SELESAI': {
                     this.data.finished = Date.now();
                     this.save();
@@ -108,17 +111,17 @@ class handleVoterWS {
                     break;
                 }
             }
-        }else{
+        } else {
             // is object, mean vote it!
             const raw = new Int8Array(data as Buffer);
             const [candidate, add] = raw;
-            if( this.data.results[ candidate ]){
-                this.data.results[ candidate ].count += add;
+            if (this.data.results[candidate]) {
+                this.data.results[candidate].count += add;
                 this.data.accepted += add;
-            }else{
+            } else {
                 this.data.declined += add;
             }
-            this.data.total =  this.data.accepted + this.data.declined;
+            this.data.total = this.data.accepted + this.data.declined;
             this.save();
             this.log('VOTE', candidate, add)
             // reply back of the total value
@@ -138,10 +141,10 @@ class handleVoterWS {
             } catch{ }
         }
         //@ts-ignore
-        if( this.ws && (this.ws.voter_handler || this.ws.readyState == WS.OPEN)){
-            try{
+        if (this.ws && (this.ws.voter_handler || this.ws.readyState == WS.OPEN)) {
+            try {
                 this.ws.terminate()
-            }catch {}
+            } catch { }
         }
         delete this.ws;
         delete this.req;
@@ -164,7 +167,7 @@ router.post('/check', (req, res) => {
 
 function acceptWSConnection(ws: WS, voteId: number, voteInfo, req: Request) {
     const voteFile = `${config.public_path}/${voteId}.json`;
-    
+
     connectedVoters[voteId] = ws;
 
     ws.on("error", (err) => {
