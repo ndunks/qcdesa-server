@@ -24,6 +24,7 @@ function checkPasscode(req: Request) {
 }
 
 router.get('/quickcount', (req, res, next) => {
+    
     if (!checkPasscode(req)) {
         return next({ status: 403, message: 'Forbiden' })
     }
@@ -71,6 +72,7 @@ router.patch('/quickcount/:index', (req, res, next) => {
 })
 
 router.post('/', (req, res) => {
+    echo('Check login admin');
     let valid = checkPasscode(req);
     res.send({ valid });
 })
@@ -107,4 +109,4 @@ router.put('/upload/:name', (req, res, next) => {
     }
 })
 
-module.exports = router;
+export default router;

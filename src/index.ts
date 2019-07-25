@@ -1,6 +1,9 @@
 import * as express from "express";
 import * as fs from "fs";
 import config from "@/config/config";
+import IndexHandler from "@/handlers/default";
+import { VoterHandler, VoterServerUpgradeHandler } from "@/handlers/voter";
+import AdminHandler from "@/handlers/admin";
 
 declare global {
     function echo(...args): void
@@ -38,22 +41,21 @@ process.argv.reduce( ( param , current, index, array) => {
 global.echo = (...args) => {
     config.debug && console.log(...args)
 }
-const server = express();
+const app = express();
 const router = express.Router();
-const expresw= require("express-ws")(server);
 
 console.debug("Mode %s, Loaded config %s", process.env.NODE_ENV, config);
 
 /** Setup JSON Parser */
-server.use(express.json())
+app.use(express.json())
 
 /** Serve Static files */
-server.use([config.public_url, '/public'], express.static(config.public_path))
+app.use([config.public_url, '/public'], express.static(config.public_path))
 
 /** Load all handlers */
-router.use('/', require('@/handlers/default') );
-router.use('/admin', require('@/handlers/admin') );
-router.use('/voter', require('@/handlers/voter') );
+router.use('/', IndexHandler);
+router.use('/admin', AdminHandler);
+router.use('/voter', VoterHandler);
 
 /** Error handler */
 
@@ -79,7 +81,9 @@ router.use((req, res, next) => {
 
 
 
-server.use(config.api_url, router);
+app.use(config.api_url, router);
 
 
-server.listen(config.port, config.host,  () => echo('Api Listening on', `http://${config.host}:${config.port}/`) )
+const server = app.listen(config.port, config.host,  () => echo('Api Listening on', `http://${config.host}:${config.port}/`) )
+
+server.on('upgrade', VoterServerUpgradeHandler )
