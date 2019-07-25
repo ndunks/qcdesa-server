@@ -3,8 +3,8 @@ import { existsSync, readFileSync, mkdirSync, createWriteStream, openSync, write
 import { Router, Request } from "express";
 import { extname, resolve } from "path";
 const passcodeFile = `${config.data}/passcode`;
-const dataFile = `${config.data}/data.json`;
-const publicFile = `${config.public_path}/data.json`;
+const dataFile = `${config.public_path}/data.json`;
+const dataPasscodeFile = `${config.data}/passcode.data.json`;
 const router = Router();
 
 function checkPasscode(req: Request) {
@@ -25,11 +25,17 @@ function checkPasscode(req: Request) {
 }
 // Store file in 2 locations
 function updateData(data: any[]){
-    
-    writeFileSync(dataFile, JSON.stringify(data, null, 2));
-    // Remove passcode
-    data.forEach( v => delete v.passcode );
-    writeFileSync(publicFile, JSON.stringify(data, null, 2));
+    const passcodes = [];
+
+    // Remove passcode, store on private data dir
+    data.forEach( v => {
+        passcodes.push(v.passcode  || '' );
+        delete v.passcode;
+    } );
+
+    writeFileSync(dataFile, JSON.stringify(data));
+    // Writes passcode
+    writeFileSync(dataPasscodeFile, JSON.stringify(passcodes));
 }
 
 router.get('/quickcount', (req, res, next) => {
@@ -101,7 +107,7 @@ router.put('/upload/:name', (req, res, next) => {
     const url = `${config.public_url}/${dir}/${filename}`;
     try {
         if (!existsSync(fileDir)) {
-            mkdirSync(fileDir);
+            mkdirSync(fileDir,{recursive: true});
         }
         const f = createWriteStream(fileDest, {
             autoClose: true

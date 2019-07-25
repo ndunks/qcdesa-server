@@ -8,20 +8,18 @@ import AdminHandler from "@/handlers/admin";
 declare global {
     function echo(...args): void
 }
+// File is shared, make it public accessible
+process.umask(0o011);
 
-if( ! fs.existsSync(config.data) ){
-    fs.mkdirSync(config.data, {recursive: true});
-    if(!fs.existsSync(config.public_path)){
-        fs.mkdirSync(config.public_path, {recursive: true});
-    }
+if (!fs.existsSync(config.data)) {
+    fs.mkdirSync(config.data, { recursive: true });
 }
-if( ! fs.existsSync(config.public_path) ){
-    console.error('Public Storage is not exist or not accessible', config.public_path)
-    process.exit(1);
+if (!fs.existsSync(config.public_path)) {
+    fs.mkdirSync(config.public_path, { recursive: true });
 }
 try {
-    fs.accessSync( config.data, fs.constants.W_OK );
-    fs.accessSync( config.public_path, fs.constants.W_OK );
+    fs.accessSync(config.data, fs.constants.W_OK);
+    fs.accessSync(config.public_path, fs.constants.W_OK);
 } catch (error) {
     console.error(error.message);
     process.exit(1)
@@ -29,13 +27,13 @@ try {
 
 
 /** Overide config property from command arguments */
-process.argv.reduce( ( param , current, index, array) => {
-    if( param.length ){
+process.argv.reduce((param, current, index, array) => {
+    if (param.length) {
         config[param] = current;
         return '';
     }
-    return current[0] == '-' ? current.replace(/^-+/,'') : ''
-}, '' )
+    return current[0] == '-' ? current.replace(/^-+/, '') : ''
+}, '')
 
 /** Wrap console log */
 global.echo = (...args) => {
@@ -84,6 +82,6 @@ router.use((req, res, next) => {
 app.use(config.api_url, router);
 
 
-const server = app.listen(config.port, config.host,  () => echo('Api Listening on', `http://${config.host}:${config.port}/`) )
+const server = app.listen(config.port, config.host, () => echo('Api Listening on', `http://${config.host}:${config.port}/`))
 
-server.on('upgrade', VoterServerUpgradeHandler )
+server.on('upgrade', VoterServerUpgradeHandler)
