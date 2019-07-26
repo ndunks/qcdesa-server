@@ -64,7 +64,7 @@ class handleVoterWS {
             ws.send(str)
             // send initial data
             ws.on('message', this.onMessage)
-            const remoteIp = req.header('x-forwarded-for') || req.connection.remoteAddress;
+            const remoteIp = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
             this.log('Connected', remoteIp, req.headers["user-agent"]);
         }
     }
