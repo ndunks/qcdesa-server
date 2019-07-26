@@ -2,6 +2,7 @@ import config from "@/config/config";
 import { existsSync, readFileSync, mkdirSync, createWriteStream, openSync, writeFileSync } from "fs";
 import { Router, Request } from "express";
 import { extname, resolve } from "path";
+import { Response } from "express-serve-static-core";
 const passcodeFile = `${config.data}/passcode`;
 const dataFile = `${config.public_path}/data.json`;
 const dataPasscodeFile = `${config.data}/passcode.data.json`;
@@ -26,10 +27,13 @@ function checkPasscode(req: Request) {
 // Store file in 2 locations
 function updateData(data: any[]){
     const passcodes = [];
+    const oldPasscodes = existsSync(dataPasscodeFile) ?
+    JSON.parse(readFileSync(dataPasscodeFile, 'utf8')) : [];
+
 
     // Remove passcode, store on private data dir
-    data.forEach( v => {
-        passcodes.push(v.passcode  || '' );
+    data.forEach( (v, i) => {
+        passcodes.push(v.passcode  || oldPasscodes[i] || '' );
         delete v.passcode;
     } );
 
@@ -92,8 +96,7 @@ router.post('/', (req, res) => {
     res.send({ valid });
 })
 
-
-router.put('/upload/:name', (req, res, next) => {
+function handleFileUpload(req: Request, res: Response, next: Function){
     if (!checkPasscode(req)) {
         return next({ status: 403, message: 'Forbiden' })
     }
@@ -122,6 +125,9 @@ router.put('/upload/:name', (req, res, next) => {
     } catch (error) {
         return next(error)
     }
-})
+}
+
+router.put('/upload/:name', handleFileUpload)
+router.post('/upload/:name', handleFileUpload)
 
 export default router;
