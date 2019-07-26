@@ -1,5 +1,6 @@
 import * as express from "express";
 import * as fs from "fs";
+import * as cors from "cors";
 import config from "@/config/config";
 import IndexHandler from "@/handlers/default";
 import { VoterHandler, VoterServerUpgradeHandler } from "@/handlers/voter";
@@ -43,6 +44,9 @@ const app = express();
 const router = express.Router();
 
 console.debug("Mode %s, Loaded config %s", process.env.NODE_ENV, config);
+
+/** Open CORS */
+app.use(cors())
 
 /** Setup JSON Parser */
 app.use(express.json())
