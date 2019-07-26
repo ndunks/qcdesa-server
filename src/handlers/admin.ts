@@ -25,17 +25,26 @@ function checkPasscode(req: Request) {
     }
 }
 // Store file in 2 locations
-function updateData(data: any[]){
-    const passcodes = [];
-    const oldPasscodes = existsSync(dataPasscodeFile) ?
-    JSON.parse(readFileSync(dataPasscodeFile, 'utf8')) : [];
-
+function updateData(data: any[]) {
+    const passcodes = existsSync(dataPasscodeFile) ?
+        JSON.parse(readFileSync(dataPasscodeFile, 'utf8')) : [];
 
     // Remove passcode, store on private data dir
-    data.forEach( (v, i) => {
-        passcodes.push(v.passcode  || oldPasscodes[i] || '' );
-        delete v.passcode;
-    } );
+    data.forEach((v, i) => {
+        if (typeof (passcodes[i]) == 'undefined') {
+            passcodes[i] = [];
+        }
+        if (v.locations) {
+            v.locations.forEach((vv, ii) => {
+                if (vv) {
+                    passcodes[i][ii] = vv.passcode || passcodes[i][ii] || '';
+                    delete vv.passcode;
+                } else {
+                    echo('Skip empty object location', vv);
+                }
+            })
+        }
+    });
 
     writeFileSync(dataFile, JSON.stringify(data));
     // Writes passcode
@@ -43,13 +52,13 @@ function updateData(data: any[]){
 }
 
 router.get('/quickcount', (req, res, next) => {
-    
+
     if (!checkPasscode(req)) {
         return next({ status: 403, message: 'Forbiden' })
     }
-    if( existsSync(dataFile) ){
+    if (existsSync(dataFile)) {
         res.sendFile(dataFile);
-    }else{
+    } else {
         res.send([])
     }
 })
@@ -74,7 +83,7 @@ router.patch('/quickcount/:index', (req, res, next) => {
     if (!checkPasscode(req)) {
         return next({ status: 403, message: 'Forbiden' })
     }
-    if (!req.body || !Object.keys(req.body).length ) {
+    if (!req.body || !Object.keys(req.body).length) {
         return next({ status: 401, message: 'Tidak lengkap' })
     }
     let index = req.params.index || -1;
@@ -82,10 +91,10 @@ router.patch('/quickcount/:index', (req, res, next) => {
     if (existsSync(dataFile)) {
         dataJson = JSON.parse(readFileSync(dataFile, 'utf8'));
     }
-    if( !dataJson[index] ){
+    if (!dataJson[index]) {
         return next({ status: 404, message: 'Tidak ditemukan' })
     }
-    dataJson[index] = {...dataJson[index], ...req.body};
+    dataJson[index] = { ...dataJson[index], ...req.body };
     updateData(dataJson);
     res.send({ ok: true });
 })
@@ -96,7 +105,7 @@ router.post('/', (req, res) => {
     res.send({ valid });
 })
 
-function handleFileUpload(req: Request, res: Response, next: Function){
+function handleFileUpload(req: Request, res: Response, next: Function) {
     if (!checkPasscode(req)) {
         return next({ status: 403, message: 'Forbiden' })
     }
@@ -110,7 +119,7 @@ function handleFileUpload(req: Request, res: Response, next: Function){
     const url = `${config.public_url}/${dir}/${filename}`;
     try {
         if (!existsSync(fileDir)) {
-            mkdirSync(fileDir,{recursive: true});
+            mkdirSync(fileDir, { recursive: true });
         }
         const f = createWriteStream(fileDest, {
             autoClose: true
