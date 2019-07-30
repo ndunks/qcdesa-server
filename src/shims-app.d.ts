@@ -1,3 +1,7 @@
+/**
+ * Every field can be replace via commandline interface:
+ * `yarn serve -- --passcode "123456"`
+ */
 declare interface Config {
 
     /**

@@ -1,7 +1,7 @@
 import config from "@/config/config";
-import { existsSync, readFileSync, mkdirSync, createWriteStream, openSync, writeFileSync } from "fs";
+import { existsSync, readFileSync, mkdirSync, createWriteStream, writeFileSync } from "fs";
 import { Router, Request } from "express";
-import { extname, resolve } from "path";
+import { extname } from "path";
 import { Response } from "express-serve-static-core";
 const passcodeFile = `${config.data}/passcode`;
 const dataFile = `${config.public_path}/data.json`;
@@ -47,7 +47,7 @@ function updateData(data: any[]) {
     });
 
     writeFileSync(dataFile, JSON.stringify(data));
-    // Writes passcode
+    // Writes passcode in private dir
     writeFileSync(dataPasscodeFile, JSON.stringify(passcodes));
 }
 

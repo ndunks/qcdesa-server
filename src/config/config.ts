@@ -1,10 +1,18 @@
 /**
  * This config will be loaded on server (production build)
+ * For development / local configuration, copy this config
+ * as `config.local.ts` and change to fit your local development
  */
 export default {
-    host: '127.0.0.1', // listen on local, must be proxied by http
+    host: '0.0.0.0',
     port: 8888,
     debug: false,
+
+    /**
+     * Passcode can be changed via commandline args:
+     * `node index.js --passcode "otherpass"`
+     * Note: it a default admin password, and work before `${data}/passcode` file created!
+     */
     passcode: 'barasoft',
     data: `${process.cwd()}/data`,
     api_url: '/api',
