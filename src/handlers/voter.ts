@@ -203,7 +203,7 @@ function handleWSConnection(ws: WS, req: Request, voteId: number, locationId: nu
     const wsOther = connectedVoters[`${voteId}-${locationId}`]
     if (wsOther) {
         echo(`${voteId} Double checked`, ws.readyState);
-        ws.ping('online', false, (err) => {
+        wsOther.ping('online', false, (err) => {
             if (err) {
                 echo(`${voteId} Other error, accept it`);
                 acceptWSConnection(ws, voteId, locationId, req);
