@@ -2,9 +2,8 @@
   "name": "qcdesa-server",
   "version": "1.0.0",
   "description": "Quick Count pilkades Server",
-  "main": "index.js",
-  "author": "Mochamad Arifin <arifin@klampok.id>",
-  "license": "MIT",
+  "main": "dist/index.js",
+  "author": "Mochamad Arifin <arifin@klampok.id> <klampok.child@gmail.com>",
   "private": true,
   "dependencies": {
     "cors": "^2.8.5",
