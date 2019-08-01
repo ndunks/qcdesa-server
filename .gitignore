@@ -10,9 +10,8 @@ src/config/*.local.*
 # Ignore dev build
 /build
 
-# local env files
-.env.local
-.env.*.local
+# Ignore deploy script
+/deploy.sh
 
 # Log files
 npm-debug.log*
