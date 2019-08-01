@@ -38,3 +38,5 @@ Pastikan sudah di setting ssh menggunakan publickey dan sudah membuat file `depl
 ```
 yarn run deploy
 ```
+
+*Contact: arifin@klampok.id klampok.child@gmail.com*
