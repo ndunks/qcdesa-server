@@ -2,6 +2,7 @@
   "name": "qcdesa-server",
   "version": "1.0.0",
   "description": "Quick Count pilkades Server",
+  "license": "GPL-3.0",
   "main": "dist/index.js",
   "author": "Mochamad Arifin <arifin@klampok.id> <klampok.child@gmail.com>",
   "private": true,

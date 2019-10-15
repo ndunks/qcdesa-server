@@ -19,7 +19,20 @@ if (process.argv.mode == 'production') {
      * Production build finish here
      */
     compiler.run((err, stats) => {
-        console.log(stats);
+        if (err) {
+            console.error(err);
+        } else {
+            process.stdout.write(stats.toString({
+                chunks: false,  // Makes the build much quieter
+                colors: true,    // Shows colors in the console
+                version: false,
+                hash: false,
+                builtAt: false,
+                entrypoints: false,
+                chunkModules: false,
+                modules: false
+            }) + "\n");
+        }
     })
     return;
 }
@@ -60,7 +73,16 @@ compiler.watch({
     if (err) {
         process.stderr.write(err);
     } else {
-        process.stdout.write(stats);
+        process.stdout.write(stats.toString({
+            chunks: false,  // Makes the build much quieter
+            colors: true,    // Shows colors in the console
+            version: false,
+            hash: false,
+            builtAt: false,
+            entrypoints: false,
+            chunkModules: false,
+            modules: false
+        }) + "\n");
         if (proc) {
             proc.kill()
         }
